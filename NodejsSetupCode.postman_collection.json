@@ -1,0 +1,132 @@
+{
+	"info": {
+		"_postman_id": "f88f19fb-2edb-4c83-a5b2-b8fedc673644",
+		"name": "NodejsSetupCode",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33775438",
+		"_collection_link": "https://orange-escape-954258.postman.co/workspace/Team-Workspace~152693e3-9f3b-4c0e-8e1e-78e4ef1172b0/collection/33775438-f88f19fb-2edb-4c83-a5b2-b8fedc673644?action=share&source=collection_link&creator=33775438"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "firstName",
+							"value": "Jayesh",
+							"type": "text"
+						},
+						{
+							"key": "lastName",
+							"value": "Ubhale",
+							"type": "text"
+						},
+						{
+							"key": "mobileNumber",
+							"value": "9112603100",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "jayeshubhale45@gmail.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "4545",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "192.168.179.88:4500/userRegister",
+					"host": [
+						"192",
+						"168",
+						"179",
+						"88"
+					],
+					"port": "4500",
+					"path": [
+						"userRegister"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "jayeshubhale45@gmail.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "4545",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "192.168.179.88:4500/userLogin",
+					"host": [
+						"192",
+						"168",
+						"179",
+						"88"
+					],
+					"port": "4500",
+					"path": [
+						"userLogin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUser",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzhlMDhhOWQzNTVhNjc5NmY0ZGI5NzEiLCJlbWFpbCI6ImpheWVzaHViaGFsZTQ1QGdtYWlsLmNvbSIsInVzZXJUeXBlIjoiVXNlciIsImlhdCI6MTczNzM2NjA1OCwiZXhwIjoxNzM3OTcwODU4fQ.Jx0ylhbyNAOGuv3xIhjisZLCVMPzNF3OiXKJG_6ZQ38",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "192.168.179.88:4500/getUser",
+					"host": [
+						"192",
+						"168",
+						"179",
+						"88"
+					],
+					"port": "4500",
+					"path": [
+						"getUser"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
