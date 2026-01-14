@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Multer configuration for file uploads
+// Multer configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, "uploads/");
@@ -38,20 +38,17 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 app.use(upload.any());
 
-// Handle unexpected file upload errors
+// Error handler
 app.use((error, req, res, next) => {
-    const message = `Unexpected field: ${error.field}`;
-    return res.status(500).json({ error: message });
+    return res.status(500).json({ error: error.message });
 });
 
 // Routes
 app.use("/", userRoute);
 
-// Define server host and port
-const PORT = process.env.PORT || 4400;
-const HOST = "10.16.158.166";
+// ✅ Render-compatible server start
+const PORT = process.env.PORT || 3000;
 
-// Start the server
-app.listen(PORT, HOST, () => {
-    console.log(`Server running at http://${HOST}:${PORT}`.bold.cyan);
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`.bold.green);
 });
