@@ -38,6 +38,14 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 app.use(upload.any());
 
+// 🔹 ADD THIS ROOT ROUTE HERE 👇
+app.get("/", (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "Node API is running successfully 🚀"
+    });
+});
+
 // Error handler
 app.use((error, req, res, next) => {
     return res.status(500).json({ error: error.message });
@@ -46,7 +54,7 @@ app.use((error, req, res, next) => {
 // Routes
 app.use("/", userRoute);
 
-// ✅ Render-compatible server start
+// Server start
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
