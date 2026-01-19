@@ -7,6 +7,7 @@ const path = require("path");
 const cors = require("cors");
 const connectDB = require("./config/dbConnect");
 const userRoute = require("./routes/UserRoutes");
+const pgRoute = require("./routes/PGRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -53,6 +54,7 @@ app.use((error, req, res, next) => {
 
 // Routes
 app.use("/", userRoute);
+app.use("/api/pg", pgRoute);
 
 // Server start
 const PORT = process.env.PORT || 3000;

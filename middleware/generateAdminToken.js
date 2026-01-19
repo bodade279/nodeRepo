@@ -15,13 +15,14 @@ const generateAdminToken = (userId, email) => {
 
 // Middleware to verify admin token
 const verifyAdminToken = (req, res, next) => {
-    const token = req.headers['x-api-key'];
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
     // Check if token is provided
     if (!token) {
         return res.status(400).json({
             error_code: 400,
-            message: 'Token is required in the x-api-key header',
+            message: 'Token is required in the Authorization header (Bearer <token>)',
         });
     }
 
