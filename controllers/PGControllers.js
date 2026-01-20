@@ -1,5 +1,7 @@
 const PGModel = require("../models/PGModel");
 
+const mongoose = require('mongoose');
+
 // Create a new PG listing (Admin Only)
 const createPG = async (req, res) => {
     try {
@@ -8,7 +10,7 @@ const createPG = async (req, res) => {
             gender, preferredGuest, availableFrom, foodIncluded, rules, closingTime, isRentNegotiable, description,
             roomType, occupancy, rent,
             laundry, roomCleaning, wardenFacility, moreAmenities
-        } = req.body; 
+        } = req.body;
 
         // Check if user is Admin (this will be handled by middleware, but extra check doesn't hurt)
         if (req.userType !== 'Admin') {
@@ -65,7 +67,15 @@ const getAllPGs = async (req, res) => {
 const getPGById = async (req, res) => {
     try {
         const { id } = req.params;
-        const pg = await PGModel.findById(id).populate("adminId", "firstName lastName email mobileNumber");
+        // Sanitize id: remove leading colon if present (common mistake)
+        const cleanId = id.startsWith(':') ? id.slice(1) : id;
+
+        // Validate ObjectId
+        if (!mongoose.Types.ObjectId.isValid(cleanId)) {
+            return res.status(400).json({ error_code: 400, message: "Invalid PG ID format." });
+        }
+
+        const pg = await PGModel.findById(cleanId).populate("adminId", "firstName lastName email mobileNumber");
 
         if (!pg) {
             return res.status(404).json({ error_code: 404, message: "PG not found." });
