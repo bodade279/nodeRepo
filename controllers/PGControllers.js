@@ -49,7 +49,14 @@ const createPG = async (req, res) => {
 // Get all PG listings (Public/User)
 const getAllPGs = async (req, res) => {
     try {
-        const pgs = await PGModel.find().populate("adminId", "firstName lastName email mobileNumber");
+        let query = {};
+
+        // If the user is an Admin, only show their own PG listings
+        if (req.userType === 'Admin') {
+            query.adminId = req.userId;
+        }
+
+        const pgs = await PGModel.find(query).populate("adminId", "firstName lastName email mobileNumber");
 
         return res.status(200).json({
             error_code: 200,

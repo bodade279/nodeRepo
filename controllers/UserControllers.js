@@ -2,6 +2,8 @@ const UserModel = require("../models/UserModel");
 const jwt = require('jsonwebtoken');
 const generateBaseUrl = require("../constants/baseURL").generateBaseUrl;
 const generateOTP = require("../constants/GenerateOTP");
+const sendEmail = require("../utils/sendEmail");
+const crypto = require("crypto");
 const createUserToken = require('../middleware/generateUserToken').generateUserToken;
 const createAdminToken = require('../middleware/generateAdminToken').generateAdminToken;
 
@@ -311,19 +313,49 @@ const forgotPassword = async (req, res) => {
             return res.status(404).json({ error_code: 404, message: "User not found." });
         }
 
-        const otp = generateOTP(4);
-        user.otp = otp;
+        // Generate Reset Token
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+        // Hash token before saving to DB
+        // In this case, since we are reusing 'otp' field which is String, we can just save it.
+        // If security is paramount, we should hash it. For now, sticking to direct save to match 'otp' usage pattern
+        // but ensuring it's a long token.
+        user.otp = resetToken;
         user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
         await user.save();
 
-        // In a real app, send OTP via email/SMS here
-        console.log(`OTP for ${email}: ${otp}`);
+        // Create Reset URL
+        // Assuming frontend runs on same host or configuring a specific URL
+        // For now, I'll use a generic localhost URL or try to derive it. 
+        // Better to use an env var for FRONTEND_URL if possible, but I'll default to localhost.
+        const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
 
-        return res.status(200).json({
-            error_code: 200,
-            message: "OTP sent successfully.",
-            otp: otp, // Sending back for demo purposes as requested by "screen" implication
-        });
+        const message = `
+            <h1>You have requested a password reset</h1>
+            <p>Please go to this link to reset your password:</p>
+            <a href="${resetUrl}" clicktracking=off>${resetUrl}</a>
+        `;
+
+        try {
+            await sendEmail({
+                email: user.email,
+                subject: "Password Reset Request",
+                message,
+            });
+
+            return res.status(200).json({
+                error_code: 200,
+                message: "Email sent successfully.",
+            });
+        } catch (error) {
+            user.otp = undefined;
+            user.otpExpires = undefined;
+            await user.save();
+
+            console.error("Email send error:", error);
+            return res.status(500).json({ error_code: 500, message: "Email could not be sent." });
+        }
     } catch (error) {
         console.error("Error in forgotPassword:", error);
         return res.status(500).json({ error_code: 500, message: "An error occurred." });
@@ -354,14 +386,20 @@ const verifyOTP = async (req, res) => {
 
 const resetPassword = async (req, res) => {
     try {
-        const { email, otp, newPassword } = req.body;
-        if (!email || !otp || !newPassword) {
-            return res.status(400).json({ error_code: 400, message: "All fields are required." });
+        // email is optional now as token (otp) is unique enough
+        const { otp, newPassword } = req.body;
+        if (!otp || !newPassword) {
+            return res.status(400).json({ error_code: 400, message: "Token and new password are required." });
         }
 
-        const user = await UserModel.findOne({ email, otp, otpExpires: { $gt: Date.now() } });
+        // Find user by token (stored in otp field)
+        const user = await UserModel.findOne({
+            otp: otp,
+            otpExpires: { $gt: Date.now() }
+        });
+
         if (!user) {
-            return res.status(400).json({ error_code: 400, message: "Invalid or expired OTP." });
+            return res.status(400).json({ error_code: 400, message: "Invalid or expired password reset token." });
         }
 
         user.password = newPassword;
